@@ -1,0 +1,27 @@
+{
+  "name": "shop",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "publish1": "scp -r assets root@47.104.190.150:/www/server/shop/public/shop",
+    "publish2": "scp ** root@47.104.190.150:/www/server/shop/public/shop",
+    "connect": "ssh root@47.104.190.150"
+  },
+  "dependencies": {
+    "base64url": "^2.0.0",
+    "body-parser": "~1.18.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "express": "~4.15.5",
+    "jade": "~1.11.0",
+    "morgan": "~1.9.0",
+    "mysql2": "^1.5.3",
+    "node-xlsx": "^0.12.1",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "request": "^2.85.0",
+    "serve-favicon": "~2.4.5"
+  }
+}

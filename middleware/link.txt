@@ -1,0 +1,7 @@
+https://partner.shopeemobile.com/api/v1/shop/auth_partner?id=840652&token=50c3d6a9c03134151b23615cc330eff2ae8223f2d6a5123c12423d365c91092f&redirect=https://www.baidu.com
+https://www.baidu.com/
+75025530cf57a7b74895ed0837d8e8c4e74e661335e1b58150fc91c220aead75https://www.baidu.com
+50c3d6a9c03134151b23615cc330eff2ae8223f2d6a5123c12423d365c91092f
+
+{"freight":4,"profit":4,"exchangeRate":5,"discount":0.6,"quantity":"1000","weight":"0.1","desc":"#購買提醒","logistics":[{"weight_limits":{"item_min_weight":0.001,"item_max_weight":20},"has_cod":false,"item_max_dimension":{},"sizes":[],"logistic_name":"圓通-黑貓宅配","enabled":true,"logistic_id":38011,"fee_type":"SIZE_INPUT"},{"weight_limits":{"item_min_weight":0.001,"item_max_weight":5},"has_cod":true,"item_max_dimension":{},"sizes":[],"logistic_name":"圓通-711超取","enabled":true,"logistic_id":38012,"fee_type":"SIZE_INPUT"},{"weight_limits":{"item_min_weight":0.001,"item_max_weight":5},"has_cod":false,"item_max_dimension":{},"sizes":[],"logistic_name":"蝦皮店配-全家","enabled":true,"logistic_id":38020,"fee_type":"SIZE_INPUT"}]}
+shop_id=61519071;
