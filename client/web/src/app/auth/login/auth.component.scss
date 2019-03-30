@@ -1,0 +1,30 @@
+app-login {
+  .form-wrapper {
+    margin-top: 150px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    width: 460px;
+    box-shadow: 1px 1px 5px 1px #cdcdcd;
+    border-radius: 6px;
+  }
+  .login-form {
+    max-width: 400px;
+  }
+
+  .login-form-forgot {
+    float: right;
+  }
+
+  .login-form-button {
+    width: 100%;
+  }
+
+  .ant-input {
+    height: 50px;
+  }
+
+  .ant-btn {
+    height: 50px;
+  }
+}
+

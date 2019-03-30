@@ -1,0 +1,167 @@
+app-home {
+  .username {
+    right: 40px;
+    top: 0;
+  }
+
+  .width-content {
+    width: 1024px;
+  }
+
+  .shop-list {
+    width: 100px;
+    height: 30px;
+  }
+
+  .content-taps {
+    width: 1024px;
+    .tap-inner {
+
+    }
+  }
+
+  .item-properties {
+    height: 200px;
+  }
+
+  li {
+    .img-wrapper {
+      width: 100px;
+      height: 100px;
+    }
+    .item-description {
+      max-width: 500px;
+    }
+  }
+  .fullScreenLoading {
+    top: 0;
+    left: 0;
+    margin-top: 64px;
+  }
+
+  .supplier-table {
+    li.table-row {
+      height: 40px;
+      line-height: 40px;
+      padding-left: 20px;
+      padding-right: 20px
+    }
+
+    .item-sku {
+      width: 200px;
+    }
+
+    .num {
+      width: 100px;
+    }
+
+    .price {
+      width: 100px;
+    }
+  }
+}
+
+.item-edit-modal {
+  th, td {
+    text-align: center;
+  }
+
+  .sku {
+    padding-right: 70px;
+    max-height: 200px;
+    overflow-y: scroll;
+    li {
+      button {
+        top: 0;
+        right: -70px;
+      }
+
+      div {
+        height: 40px;
+      }
+
+      .sku-name {
+        width: 150px;
+      }
+
+      .sku-id {
+        width: 100px;
+      }
+
+      .sku-price, .sku-quantity {
+        width: 70px;
+      }
+    }
+  }
+
+  .item-name {
+    width: 150px!important;
+  }
+
+  .item-id {
+    width: 130px;
+  }
+
+  .btn-fold-unfold {
+    right: 0;
+    top: 0;
+  }
+
+  .layout-left {
+    width: 550px;
+    padding-right: 30px;
+  }
+
+  .layout-right {
+    width: 476px;
+  }
+
+  textarea {
+    max-height: 94px!important;
+  }
+
+  .item-categories {
+    li {
+      select {
+        height: 40px;
+      }
+    }
+  }
+
+  .layout-right {
+    .img-wrapper {
+      width: 120px;
+      height: 120px;
+      float: left;
+      border: 1px solid #cdcdcd;
+      margin-right: 20px;
+      margin-top: 20px;
+
+      input {
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+      }
+    }
+  }
+
+}
+
+.setting-modal {
+  .loading-content {
+    width: 100%;
+    height: 600px;
+  }
+  textarea {
+    height: 200px!important;
+    max-height: 200px!important;
+  }
+}
+
+.top-fixed-nav {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: rgba(0,0,0,0.5);
+}

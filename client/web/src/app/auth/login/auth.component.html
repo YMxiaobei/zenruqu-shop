@@ -1,0 +1,53 @@
+<div class="form-wrapper margin-center">
+  <h1 class="text-align-center"><span *ngIf="!isRegister">用户登陆</span><span  *ngIf="isRegister">用户注册</span></h1>
+  <form nz-form [formGroup]="user" class="login-form margin-center">
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group [nzPrefixIcon]="'anticon anticon-user'">
+          <input type="text" nz-input formControlName="username" placeholder="用户名">
+        </nz-input-group>
+        <nz-form-explain *ngIf="user.get('username').dirty && user.get('username').errors">请输入您的用户名</nz-form-explain>
+        <nz-form-explain class="margin-top-5 font-red1 margin-bottom-10" *ngIf="isRegister && user.get('username').value === lastUsername && usernameExit">该用户名已经存在</nz-form-explain>
+        <nz-form-explain class="margin-top-5 font-red1 margin-bottom-10" *ngIf="!isRegister && userNotExit && lastUsername === user.get('username').value">用户名不存在</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group [nzPrefixIcon]="'anticon anticon-lock'">
+          <input type="password" nz-input formControlName="password" placeholder="密码">
+        </nz-input-group>
+        <nz-form-explain *ngIf="user.get('password').dirty && user.get('password').errors">请输入您的密码</nz-form-explain>
+        <nz-form-explain class="font-red1 margin-top-5" *ngIf="!isRegister && passwordIncorrect && lastPassword === user.get('password').value">密码错误</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngIf="isRegister">
+      <nz-form-control>
+        <nz-input-group [nzPrefixIcon]="'anticon anticon-lock'">
+          <input type="password" nz-input formControlName="passwordComfirm" placeholder="确认密码">
+        </nz-input-group>
+        <nz-form-explain class="margin-top-5" *ngIf="user.get('passwordComfirm').dirty && user.get('passwordComfirm').errors">请确认您的密码</nz-form-explain>
+        <nz-form-explain class="font-red1 margin-top-5" *ngIf="user.get('passwordComfirm').dirty && user.get('passwordComfirm').value !== user.get('password').value">两次输入的密码不一致</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <label nz-checkbox *ngIf="!isRegister">
+          <span>记住我</span>
+        </label>
+        <a class="login-form-forgot" *ngIf="!isRegister">忘记密码</a>
+        <button
+          nz-button
+          [disabled]=""
+          class="login-form-button margin-top-10 margin-bottom-10"
+          [nzType]="'primary'"
+          (click)="submit()">
+          <span *ngIf="!isRegister">登陆</span>
+          <span *ngIf="isRegister">注册</span>
+        </button>
+        <a href="javascript:" *ngIf="!isRegister" (click)="isRegister = true">还没有账号？马上注册!</a>
+        <a href="javascript:" *ngIf="isRegister" (click)="isRegister = false">已有账号？去登陆!</a>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</div>
+

@@ -1,0 +1,514 @@
+<nz-layout>
+  <nz-header class="relative">
+    <h1 class="font-white flex-center"><span>产品管理</span></h1>
+    <div class="absolute v-fill flex-center username">
+      <span class="font-white margin-right-10">你好，{{userInfo?.result?.username}}</span>
+      <a href="javascript:" (click)="signout()">登出</a>
+    </div>
+  </nz-header>
+    <nz-content>
+      <div class="select-shop width-content margin-center margin-top-20">
+        <label>
+          选择淘宝商店：
+          <select class="shop-list" [(ngModel)]="selectedShop">
+            <option *ngFor="let shop of shops" [value]="shop.id">{{shop.name}}</option>
+          </select>
+        </label>
+        <label class="margin-left-30">
+          选择同步商店：
+          <select class="shop-list" [(ngModel)]="selectedShop2">
+            <option *ngFor="let shop of shops2" [value]="shop.id">{{shop.name}}</option>
+          </select>
+        </label>
+        <button nz-button [nzType]="'primary'" class="margin-left-30" (click)="isAddingShop = true; shopType = 1">增加淘宝商店</button>
+        <button nz-button [nzType]="'primary'" class="margin-left-30" (click)="isAddingShop2 = true; shopType = 2">增加同步商店</button>
+        <button nz-button [nzType]="'primary'" class="margin-left-30" (click)="synchronization()">重置数据</button>
+        <button nz-button [nzType]="'primary'" class="margin-left-30" (click)="isSettingDefault = true">配置产品</button>
+      </div>
+      <nz-tabset class="content-taps margin-top-30 margin-center">
+        <nz-tab [nzTitle]="'同步产品'">
+          <div class="bg-white tap-inner h-fill border-radius padding-20">
+            <div class="top-opearate flex-h-between flex-v-center">
+              <label nz-checkbox [(ngModel)]="selectAll">全选</label>
+              <div class="operation-btns">
+                <button nz-button class="margin-right-10" (click)="mutiUpdateType = updateType.addItems; updateProducts()">批量同步</button>
+                <button nz-button class="margin-right-10" (click)="mutiUpdateProduct = {}; mutiUpdate = true; mutiUpdateType = updateType.weight">批量改重量</button>
+                <button nz-button class="margin-right-10" (click)="mutiUpdateProduct = {}; mutiUpdate = true; mutiUpdateType = updateType.quantity">批量改数量</button>
+                <button nz-button class="margin-right-10" (click)="mutiUpdateProduct = {}; mutiUpdate = true; mutiUpdateType = updateType.desc">批量改描述</button>
+                <button nz-button class="margin-right-10" (click)="setCategories()">批量填写类别</button>
+                <button nz-button class="margin-right-10" (click)="mutiUpdateProduct = {}; mutiUpdate = true; mutiUpdateType = updateType.price">批量改价</button>
+                <button nz-button class="margin-right-10" (click)="translate('cnToEn')">批量英翻</button>
+                <button nz-button (click)="translate('cnToCht')">批量繁翻</button>
+              </div>
+            </div>
+            <div class="pagination-wrapper overflow-hidden">
+              <nz-pagination
+                class="float-right margin-top-20"
+                [nzPageIndex]="page"
+                (nzPageIndexChange) = "page = $event"
+                [nzPageSize] = "40"
+                [nzShowQuickJumper] = "false"
+                [nzTotal]="total" nzShowQuickJumper></nz-pagination>
+            </div>
+            <div class="margin-top-30 scroll-Y">
+              <ul class="clear-padding margin-top-20">
+                <li
+                  *ngFor="let data of datas; let isFirst = first"
+                  class="flex-h-between border-bottom-gray1 padding-v-20 flex-v-center"
+                  [class.border-top-gray1]="isFirst"
+                >
+                  <div class="flex-v-center">
+                    <label nz-checkbox [(ngModel)]="checkMap[ data.id ] " class="no-shrink">{{data.sku_id}}</label>
+                    <div class="img-wrapper bg-blue1 border-radius margin-right-10 margin-left-30 no-shrink">
+                      <img [src]="data.pic_url" width="100%" height="100%">
+                    </div>
+                    <div class="item-description no-shrink flex-wrap">
+                      <h3 class="item-title">{{data.title}}</h3>
+                      <div class="margin-top-10">
+                        <div class="item-price flex">
+                          <div class="padding-right-10 border-right-gray1"><span class="margin-right-5">原价:</span><span>{{data.compare_at_price || 0}}</span></div>
+                          <div class="padding-left-10"><span class="margin-right-5">售价:</span><span>{{data.price}}</span></div>
+                        </div>
+                        <div class="margin-top-5"><span class="margin-right-5">类别:</span><span>{{data.category_names?.length && data.category_names.join('>') || "未配置"}}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="item-operation-btns v-fill flex-v-center">
+                    <button class="margin-right-10" nz-button [nzType]="'primary'" (click)="addItem(data.id)">
+                      <span *ngIf="!loadingMap[data.id]">发布</span>
+                      <i class="anticon anticon-spin anticon-loading" style="font-size: 24px" *ngIf="loadingMap[data.id]"></i>
+                    </button>
+                    <button nz-button [nzType]="'primary'" (click)="editingItem=data;isEditing = true">编辑</button>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nz-tab>
+        <nz-tab [nzTitle]="'供应商表'" (nzSelect)="getSuppliers(suppliersPage)">
+          <div class="supplier-table padding-top-30 bg-white padding-right-20 padding-bottom-40">
+            <div class="bg-white tap-inner h-fill border-radius flex-h-between flex-v-center">
+              <div class="btn-groups padding-left-20">
+                <button nz-button [nzType]="'primary'" (click)="isAddingAddrMap = true">添加地址缩写索引</button>
+                <button nz-button [nzType]="'primary'" (click)="showAddrList = true" class="margin-left-30">查看索引列表</button>
+                <button nz-button [nzType]="'primary'" (click)="getSupplierXlsx()" class="margin-left-30">导出为excel</button>
+              </div>
+              <div class="pagination-wrapper overflow-hidden">
+                <nz-pagination
+                  class="float-right margin-top-20 clear-margin"
+                  [nzPageIndex]="suppliersPage"
+                  (nzPageIndexChange) = "suppliersPage = $event"
+                  [nzPageSize] = "40"
+                  [nzShowQuickJumper] = "false"
+                  [nzTotal]="suppliersLength" nzShowQuickJumper></nz-pagination>
+              </div>
+            </div>
+            <div>
+              <ul class="bg-white margin-top-30">
+                <li class="table-row">
+                  <div class="flex h-fill">
+                    <div class="item-sku">ITEM SKU</div>
+                    <div class="addr flex-auto">供应商地址</div>
+                    <div class="num">货号</div>
+                    <div class="price">进货价(元)</div>
+                  </div>
+                </li>
+                <li *ngFor="let supplier of suppliers; let isOdd=odd" class="table-row">
+                  <div class="flex h-fill border-bottom-gray1">
+                    <div class="item-sku">{{supplier.sku_id}}</div>
+                    <div class="addr flex-auto">{{supplier.abbreviation ? supplier.abbreviation + "-" + supplier.addr : supplier.addr}}</div>
+                    <div class="num">{{supplier.num}}</div>
+                    <div class="price">{{supplier.price}}(元)</div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nz-tab>
+      </nz-tabset>
+  </nz-content>
+  <nz-footer><div class="flex-center h-fill">Footer 2018</div></nz-footer>
+</nz-layout>
+<nz-modal [(nzVisible)]="isEditing"
+          [nzTitle]="'编辑产品'"
+          [nzOkText]="'确定'"
+          [nzCancelText]="'取消'"
+          (nzOnCancel)="isEditing = false"
+          class="item-edit-modal"
+          [nzWidth]="1200"
+          (nzOnOk)="submit(editingItem)">
+  <div class="fill flex">
+    <div class="layout-left border-right-gray1">
+        <ul>
+          <li class="relative">
+            <label>
+              商品名称
+              <input type="text" class="margin-top-10" nz-input [(ngModel)]="editingItem.title">
+            </label>
+          </li>
+          <li class="margin-top-20 relative">
+            <label>
+              商品描述
+              <textarea nz-input class="margin-top-10" [nzAutosize]="{ minRows: 2, maxRows: 20 }" [(ngModel)]="editingItem.description"></textarea>
+            </label>
+          </li>
+          <li class="margin-top-20 relative">
+            <label>
+              商品选项
+              <div class="margin-top-10 item-properties" >
+                <ul class="sku">
+                  <li class="flex-h-between">
+                    <div class="sku-name">名称</div>
+                    <div class="sku-id">货号</div>
+                    <div class="sku-price">价格</div>
+                    <div class="sku-quantity">数量</div>
+                  </li>
+                  <li class="flex-h-between relative" *ngFor="let sku of editingItem.skus?.sku; let i = index">
+                    <div class="sku-name">
+                      <input nz-input [(ngModel)]="sku.properties_name">
+                    </div>
+                    <div class="sku-id">
+                      <input nz-input [(ngModel)]="sku.sku_id" readonly>
+                    </div>
+                    <div class="sku-price">
+                      <input nz-input [(ngModel)]="sku.price">
+                    </div>
+                    <div class="sku-quantity">
+                      <input nz-input [(ngModel)]="sku.quantity">
+                    </div>
+                    <button nz-button [nzType]="'primary'" class="absolute" (click)="deleteSku(i)">删除</button>
+                  </li>
+                </ul>
+              </div>
+            </label>
+          </li>
+          <li class="margin-top-10">
+            <button nz-button [nzType]="'primary'" (click)="addSku()">增加</button>
+          </li>
+          <li class="margin-top-20 relative">
+            <div class="flex">
+              <div class="flex-auto">
+                <label>
+                  商品重量
+                  <input nz-input type="text" class="margin-top-10" [(ngModel)]="editingItem.item_weight">
+                </label>
+              </div>
+              <div class="margin-left-30 flex-auto">
+                <label>
+                  商品货号
+                  <input nz-input type="text" class="margin-top-10" [(ngModel)]="editingItem.sku_id">
+                </label>
+              </div>
+            </div>
+          </li>
+        </ul>
+    </div>
+    <div class="layout-right flex-auto padding-left-30">
+      <ul>
+        <li class="margin-top-20 relative">
+          <label>
+            商品类别
+            <ul class="margin-top-10 item-categories flex">
+              <li *ngFor="let cates of categories[editingItem.id]; let i = index" class="margin-right-10">
+                <select (change)="chooseCate(cates.cates[select.value - 1],i); cates.activeIndex=select.value" [value]="cates.activeIndex" #select>
+                  <option [value]="0" class="font-gray">选择类别</option>
+                  <option *ngFor="let item of cates.cates; let k = index" [value]="k + 1">{{item.category_name}}</option>
+                </select>
+              </li>
+            </ul>
+          </label>
+        </li>
+        <li class="margin-top-20 relative">
+          <label>
+            商品属性
+            <ul class="margin-top-10 item-categories flex">
+              <li *ngFor="let attr of attributes[editingItem.id]" class="margin-right-10">
+                <select (change)="chooseAttributes()" [(ngModel)]="attr.activeIndex" [value]="attr.activeIndex">
+                  <option value="null" class="font-gray">选择类别</option>
+                  <option *ngFor="let option of attr.options; let k = index" [value]="k">{{option}}</option>
+                </select>
+              </li>
+            </ul>
+          </label>
+        </li>
+      </ul>
+      <h1>图片</h1>
+      <ul>
+        <li class="img-wrapper border-radius" *ngFor="let img of editingItem.item_imgs?.item_img"><img [src]="img.url" width="100%" height="100%"></li>
+        <li class="img-wrapper border-radius" *ngFor="let img of editingItem.imgTemps"><img [src]="img" width="100%" height="100%"></li>
+        <li class="img-wrapper border-radius flex-center"><input type="file" (change)="onImgSelete($event)" *ngIf="showSelectBtn"></li>
+      </ul>
+    </div>
+  </div>
+
+</nz-modal>
+<nz-modal [(nzVisible)]="isAddingShop"
+          [nzTitle]="'添加淘宝商店'"
+          [nzOkText]="'确定'"
+          [nzCancelText]="'取消'"
+          (nzOnCancel)="isAddingShop = false"
+          class="item-edit-modal"
+          [nzWidth]="300"
+          (nzOnOk)="submitShop()">
+  <form>
+    <ul>
+      <li>
+        <input nz-input placeholder="输入店名" name="name" [(ngModel)]="shop.name">
+      </li>
+      <li class="margin-top-20">
+        <input nz-input placeholder="输入AK" name="AK" [(ngModel)]="shop.AK">
+      </li>
+      <li class="margin-top-20">
+        <input nz-input placeholder="输入SK" name="SK" [(ngModel)]="shop.SK">
+      </li>
+    </ul>
+  </form>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="downLoadXlsx"
+          [nzTitle]="'点击下载excel'"
+          [nzOkText]="'确定'"
+          [nzCancelText]="'取消'"
+          (nzOnCancel)="downLoadXlsx = false"
+          class="downLoadXlsx-modal"
+          [nzWidth]="300"
+          (nzOnOk)="downLoadXlsx = false">
+  <a href="http://47.104.190.150/public/xlsx/result.xls">点击下载</a>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isAddingShop2"
+          [nzTitle]="'添加同步商店'"
+          (nzOnCancel)="isAddingShop2 = false"
+          class="item-edit-modal"
+          [nzWidth]="300"
+          [nzOkText]="'确定'"
+          [nzCancelText]="'取消'"
+          (nzOnOk)="submitShop()">
+  <form>
+    <ul>
+      <li>
+        <input nz-input placeholder="输入店名" name="name" [(ngModel)]="shop2.name">
+      </li>
+      <li class="margin-top-20">
+        <input nz-input placeholder="输入partnerId" name="输入partnerId" [(ngModel)]="shop2.partnerId">
+      </li>
+      <li class="margin-top-20">
+        <input nz-input placeholder="输入shopId" name="shopId" [(ngModel)]="shop2.shopId">
+      </li>
+      <li class="margin-top-20">
+        <input nz-input placeholder="输入secret key" name="secret-key" [(ngModel)]="shop2.secretKey">
+      </li>
+    </ul>
+  </form>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isSettingDefault"
+          [nzTitle]="'产品配置'"
+          [nzOkText]="'确定'"
+          [nzCancelText]="'取消'"
+          (nzOnCancel)="isSettingDefault = false"
+          class="setting-modal"
+          [nzWidth]="800"
+          (nzOnOk)="postSetting()">
+  <ul *ngIf="!loadingGetSetting">
+    <li class="relative">
+      <label>
+        商品描述
+        <textarea nz-input class="margin-top-10" [nzAutosize]="{ minRows: 2, maxRows: 20 }" [(ngModel)]="setting.desc"></textarea>
+      </label>
+    </li>
+    <li class="relative flex-auto margin-top-20">
+      <label>
+        物流配置<br>
+        <nz-checkbox-group class="margin-top-10" [(ngModel)]="logisticsesCheckBoxInfo" *ngIf="logisticsesCheckBoxInfo"></nz-checkbox-group>
+        <app-loading [type]="'git'" *ngIf="loadingLogisticses"></app-loading>
+      </label>
+    </li>
+    <div class="flex-h-between margin-top-10">
+      <li class="relative flex-auto margin-right-50">
+        <label>
+          重量配置
+          <input type="text" class="margin-top-10" nz-input [(ngModel)]="setting.weight">
+        </label>
+      </li>
+      <li class="relative  flex-auto">
+        <label>
+          数量配置
+          <input type="text" class="margin-top-10" nz-input [(ngModel)]="setting.quantity">
+        </label>
+      </li>
+    </div>
+    <div class="margin-top-10">
+      <label>配置价格</label>
+      <div class="flex-h-between">
+        <li>
+          <input type="text" class="margin-top-10" nz-input [(ngModel)]="setting.freight" placeholder="运费">
+        </li>
+        <li class="margin-left-30">
+          <input type="text" class="margin-top-10" nz-input [(ngModel)]="setting.profit" placeholder="利润">
+        </li>
+        <li class="margin-left-30">
+          <input type="text" class="margin-top-10" nz-input [(ngModel)]="setting.exchangeRate" placeholder="汇率">
+        </li>
+        <li class="margin-left-30">
+          <input type="text" class="margin-top-10" nz-input [(ngModel)]="setting.discount" placeholder="折扣">
+        </li>
+      </div>
+    </div>
+  </ul>
+  <div class="loading-content flex-center" *ngIf="loadingGetSetting">
+    <app-loading [type]="'normal'">
+      loading...
+    </app-loading>
+  </div>
+</nz-modal>
+<nz-modal [(nzVisible)]="mutiUpdate"
+          [nzTitle]="'批量修改'"
+          [nzOkText]="'确定'"
+          [nzCancelText]="'取消'"
+          (nzOnCancel)="mutiUpdate = false"
+          class="mutiUpdate-modal"
+          [nzWidth]="600"
+          (nzOnOk)="updateProducts()">
+    <ul *ngIf="mutiUpdateType === updateType.weight">
+      <li>
+        <input nz-input placeholder="输入重量" [(ngModel)]="mutiUpdateProduct.item_weight">
+      </li>
+    </ul>
+    <ul *ngIf="mutiUpdateType === updateType.quantity">
+      <li>
+        <input nz-input placeholder="输入数量" [(ngModel)]="mutiUpdateProduct.quantity">
+      </li>
+    </ul>
+    <ul *ngIf="mutiUpdateType === updateType.desc">
+      <li>
+        <input nz-input placeholder="输入desc" [(ngModel)]="mutiUpdateProduct.description">
+      </li>
+    </ul>
+    <ul *ngIf="mutiUpdateType === updateType.price">
+      <li>
+        <input type="text" nz-input [(ngModel)]="mutiUpdateProduct.freight" [disabled]="!!mutiUpdateProduct.price" placeholder="运费">
+      </li>
+      <li class="margin-top-30">
+        <input type="text" nz-input [(ngModel)]="mutiUpdateProduct.profit" [disabled]="!!mutiUpdateProduct.price" placeholder="利润">
+      </li>
+      <li class="margin-top-30">
+        <input type="text" nz-input [(ngModel)]="mutiUpdateProduct.exchangeRate" [disabled]="!!mutiUpdateProduct.price" placeholder="汇率">
+      </li>
+      <li class="margin-top-30">
+        <input type="text" nz-input [(ngModel)]="mutiUpdateProduct.discount" [disabled]="!!mutiUpdateProduct.price" placeholder="折扣">
+      </li>
+      <li class="margin-top-30">
+        <input
+          type="text"
+          nz-input
+          [(ngModel)]="mutiUpdateProduct.price"
+          [disabled]="!!(mutiUpdateProduct.freight || mutiUpdateProduct.profit || mutiUpdateProduct.exchangeRate || mutiUpdateProduct.discount)"
+          placeholder="价格">
+      </li>
+    </ul>
+    <label *ngIf="mutiUpdateType === updateType.categories">
+      商品类别
+      <ul class="margin-top-10 item-categories flex">
+        <li *ngFor="let cates of categories[editingItem.id]; let i = index" class="margin-right-10">
+          <select (change)="chooseCate(cates.cates[select.value],i); cates.activeIndex=select.value" [value]="cates.activeIndex" #select>
+            <option value="0" class="font-gray">选择类别</option>
+            <option *ngFor="let item of cates.cates; let k = index" [value]="k">{{item.category_name}}</option>
+          </select>
+        </li>
+      </ul>
+    </label>
+    <label *ngIf="mutiUpdateType === updateType.categories">
+      商品属性
+      <ul class="margin-top-10 item-categories flex">
+        <li *ngFor="let attr of attributes[editingItem.id]" class="margin-right-10">
+          <select (change)="chooseAttributes()" [(ngModel)]="attr.activeIndex" [value]="attr.activeIndex">
+            <option value="null" class="font-gray">选择类别</option>
+            <option *ngFor="let option of attr.options; let k = index" [value]="k">{{option}}</option>
+          </select>
+        </li>
+      </ul>
+    </label>
+</nz-modal>
+<nz-modal [(nzVisible)]="isAddingAddrMap"
+          [nzTitle]="'添加供应商地址缩写'"
+          [nzOkText]="'确定'"
+          [nzCancelText]="'取消'"
+          (nzOnCancel)="isAddingAddrMap = false"
+          class="add-addr-map"
+          [nzWidth]="300"
+          (nzOnOk)="addAddrMap()">
+  <form>
+    <ul>
+      <li>
+        <input nz-input placeholder="输入地址名" name="name" [(ngModel)]="addrMap.addr">
+      </li>
+      <li class="margin-top-20">
+        <input nz-input placeholder="输入地址缩写" name="输入partnerId" [(ngModel)]="addrMap.abbreviation">
+      </li>
+    </ul>
+  </form>
+</nz-modal>
+<nz-modal [(nzVisible)]="showErrorList"
+          [nzTitle]="'发布错误列表'"
+          [nzOkText]="'确定'"
+          [nzCancelText]="'取消'"
+          (nzOnCancel)="showErrorList = false"
+          class="error-list"
+          [nzWidth]="600"
+          (nzOnOk)="addAddrMap()">
+    <ul>
+      <li *ngFor="let li of errorList" class="font-red1">
+        <span>{{li.sku_id}}: </span>
+        <span>{{li.msg}}</span>
+      </li>
+    </ul>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="showAddrList"
+          [nzTitle]="'地址索引列表'"
+          [nzOkText]="'确定'"
+          [nzCancelText]="'取消'"
+          (nzOnCancel)="showAddrList = false"
+          class="addr-list"
+          [nzWidth]="300"
+          (nzOnOk)="showAddrList = false">
+  <ul>
+    <li *ngFor="let li of addrList" class="flex-h-between">
+      <span>{{li.addr}}: </span>
+      <span>{{li.abbreviation}}</span>
+    </li>
+  </ul>
+  <div class="loading-content fill flex-center">
+    <app-loading [type]="'normal'" *ngIf="loadingAddr">
+      <span class="normal">loading...</span>
+    </app-loading>
+  </div>
+</nz-modal>
+
+<app-loading [type]="'fullScreen'" *ngIf="loadingPrds && !loading">
+  <div class="fullscreen font-white">
+    {{loadingDesc}}
+  </div>
+</app-loading>
+<div class="fullScreenLoading fixed fill overflow-hidden bg-white" *ngIf="loading || loadingGetCategories">
+  <div class="loading-content fill flex-center">
+    <app-loading [type]="'normal'">
+      <span class="normal">loading...</span>
+    </app-loading>
+  </div>
+</div>
+<div class="top-fixed-nav fixed flex-center" [class.hide]="!showTopNav" style="transition-duration: 0.3s">
+  <div class="operation-btns">
+    <button nz-button class="margin-right-10" [nzType]="'primary'" (click)="mutiUpdateType = updateType.addItems; updateProducts()">批量同步</button>
+    <button nz-button class="margin-right-10" [nzType]="'primary'" (click)="mutiUpdateProduct = {}; mutiUpdate = true; mutiUpdateType = updateType.weight">批量改重量</button>
+    <button nz-button class="margin-right-10" [nzType]="'primary'" (click)="mutiUpdateProduct = {}; mutiUpdate = true; mutiUpdateType = updateType.quantity">批量改数量</button>
+    <button nz-button class="margin-right-10" [nzType]="'primary'" (click)="mutiUpdateProduct = {}; mutiUpdate = true; mutiUpdateType = updateType.desc">批量改描述</button>
+    <button nz-button class="margin-right-10" [nzType]="'primary'" (click)="setCategories()">批量填写类别</button>
+    <button nz-button class="margin-right-10" [nzType]="'primary'" (click)="mutiUpdateProduct = {}; mutiUpdate = true; mutiUpdateType = updateType.price">批量改价</button>
+    <button nz-button class="margin-right-10" [nzType]="'primary'" (click)="translate('cnToEn')">批量英翻</button>
+    <button nz-button [nzType]="'primary'" (click)="translate('cnToCht')">批量繁翻</button>
+  </div>
+</div>
+
+

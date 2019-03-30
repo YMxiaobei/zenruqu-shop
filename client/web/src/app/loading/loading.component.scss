@@ -1,0 +1,27 @@
+@keyframes myfirst
+{
+  from {transform: rotate(0);}
+  to {transform: rotate(360deg);}
+}
+
+.loadding-wrapper {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.6);
+}
+
+.loading-desc {
+  color: #00B7FF;
+  font-size: 18px;
+  margin-left: 20px;
+}
+
+i {
+  animation-name: myfirst;
+  animation-duration: 0.8s;
+  color: #00B7FF;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}

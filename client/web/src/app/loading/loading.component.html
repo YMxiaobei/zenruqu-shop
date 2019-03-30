@@ -1,0 +1,15 @@
+<div class="fixed loadding-wrapper" *ngIf="type === 'fullScreen'">
+  <div class="fill flex-center">
+    <i class="anticon anticon-loading-3-quarters" style="font-size: 50px"></i>
+    <div class="loading-desc"><ng-content select=".fullscreen"></ng-content></div>
+  </div>
+</div>
+<div class="flex-center" *ngIf="type === 'normal'">
+  <i class="anticon anticon-loading-3-quarters" style="font-size: 50px"></i>
+  <div class="loading-desc">
+    <ng-content select=".normal"></ng-content>
+  </div>
+</div>
+<div *ngIf="type === 'git'">
+  <img src="./assets/images/loading.gif">
+</div>
